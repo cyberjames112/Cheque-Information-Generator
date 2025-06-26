@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -53,6 +53,7 @@
 
     .preview img {
       width: 100%;
+      height: auto;
       display: block;
     }
 
@@ -65,25 +66,35 @@
       pointer-events: none;
     }
 
+    .date {
+      position: absolute;
+      top: 7.2%;
+      right: 5.5%;
+      font-size: 3vw;
+      letter-spacing: 1.4vw;
+      color: red;
+      font-weight: bold;
+    }
+
     .account-name {
       position: absolute;
-      top: 145px;
-      left: 105px;
-      font-size: 26px;
+      top: 20.6%;
+      left: 14.5%;
+      font-size: 2.6vw;
       font-weight: bold;
       color: red;
     }
 
     .amount-words {
       position: absolute;
-      top: 200px;
-      left: 105px;
-      right: 120px;
-      font-size: 24px;
+      top: 29.5%;
+      left: 14.5%;
+      right: 20%;
+      font-size: 2.3vw;
       font-weight: bold;
-      color: green;
+      color: red;
       white-space: pre-line;
-      line-height: 2.4;
+      line-height: 1.6;
       overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -92,55 +103,11 @@
 
     .amount-number {
       position: absolute;
-      top: 205px;
-      right: 80px;
-      font-size: 36px;
+      top: 29.5%;
+      right: 12.3%;
+      font-size: 3.2vw;
       font-weight: bold;
       color: red;
-    }
-
-    .date {
-      position: absolute;
-      top: 72px;
-      right: 28px;
-      font-size: 30px;
-      font-weight: bold;
-      color: red;
-      letter-spacing: 22px;
-    }
-
-    @media (max-width: 600px) {
-      .account-name {
-        top: 18vw;
-        left: 10vw;
-        font-size: 5vw;
-      }
-
-      .amount-words {
-        top: 26vw;
-        left: 10vw;
-        right: 10vw;
-        font-size: 4.8vw;
-        line-height: 1.6;
-        -webkit-line-clamp: 2;
-      }
-
-      .amount-number {
-        top: 28vw;
-        right: 10vw;
-        font-size: 6vw;
-      }
-
-      .date {
-        top: 10vw;
-        right: 6vw;
-        font-size: 5vw;
-        letter-spacing: 3vw;
-      }
-
-      textarea.output-field {
-        font-size: 4vw;
-      }
     }
   </style>
 </head>
@@ -179,7 +146,7 @@
   <input type="text" id="formattedDate" class="output-field" readonly>
 
   <div class="preview">
-    <img src="https://i.imgur.com/6o7r7Tk.png" alt="空白支票">
+    <img src="截圖 2025-06-26 下午4.03.08.png" alt="支票背景圖">
     <div class="overlay">
       <div class="account-name" id="checkAccountName"></div>
       <div class="amount-words" id="checkAmountWords"></div>
