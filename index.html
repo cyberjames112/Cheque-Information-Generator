@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CCPS家慶佳業專用支票資訊生成器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      padding: 0;
+      box-sizing: border-box;
+      line-height: 1.6;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 1em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 1em;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    .output-field {
+      font-weight: bold;
+      color: red;
+      display: block;
+      margin-bottom: 1em;
+    }
+
+    #cashDate {
+      width: 150px;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      background-color: red;
+      border: 1px solid black;
+      border-radius: 4px;
+    }
+
+    .preview {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 30px auto;
+    }
+
+    .preview img {
+      width: 100%;
+      display: block;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .account-name {
+      position: absolute;
+      top: 145px;
+      left: 100px;
+      font-size: 24px;
+      font-weight: bold;
+      color: red;
+    }
+
+    .amount-words {
+      position: absolute;
+      top: 200px;
+      left: 105px;
+      right: 120px;
+      font-size: 22px;
+      font-weight: bold;
+      color: red;
+      white-space: pre-line;
+      line-height: 2.2;
+    }
+
+    .amount-number {
+      position: absolute;
+      top: 205px;
+      right: 80px;
+      font-size: 32px;
+      font-weight: bold;
+      color: red;
+    }
+
+    .date {
+      position: absolute;
+      top: 90px;
+      right: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      color: red;
+      letter-spacing: 22px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CCPS家慶佳業專用支票資訊生成器</h1>
+
+  <label for="project">選擇建案：</label>
+  <select id="project">
+    <option value="">--請選擇--</option>
+    <option value="Quill">Quill</option>
+    <option value="Pavilion Square">Pavilion Square</option>
+    <option value="Bon Kiara">Bon Kiara</option>
+    <option value="Skylon">Skylon</option>
+    <option value="Conlay">Conlay</option>
+    <option value="裝修公司">裝修公司</option>
+    <option value="Skyline Embassy">Skyline Embassy</option>
+    <option value="Bangsar Hill Park">Bangsar Hill Park</option>
+    <option value="Oxley KLCC">Oxley KLCC</option>
+    <option value="Armani Hallson">Armani Hallson</option>
+    <option value="二家代辦">二家代辦</option>
+  </select>
+
+  <label for="developerAccount">銀行戶名：</label>
+  <input type="text" id="developerAccount" class="output-field" readonly>
+
+  <label for="amount">支票金額：</label>
+  <input type="number" step="0.01" id="amount" placeholder="輸入金額（可含小數）">
+
+  <label for="amountWords">金額（英文大寫）：</label>
+  <textarea id="amountWords" class="output-field" readonly rows="3"></textarea>
+
+  <label for="cashDate">兌現日期：</label>
+  <input type="date" id="cashDate">
+
+  <label for="formattedDate">格式化日期（ddmmyy）：</label>
+  <input type="text" id="formattedDate" class="output-field" readonly>
+
+  <div class="preview">
+<img src="/Users/baikunyuan/Downloads/未命名檔案夾 2/截圖 2025-06-26 下午3.24.53.png" alt="空白支票">
+      <div class="overlay">
+      <div class="account-name" id="checkAccountName"></div>
+      <div class="amount-words" id="checkAmountWords"></div>
+      <div class="amount-number" id="checkAmountNumber"></div>
+      <div class="date" id="checkDate"></div>
+    </div>
+  </div>
+
+  <script>
+    const accountMap = {
+      "Quill": "Andarama SDN BHD",
+      "Pavilion Square": "Armani Hartajaya SDN BHD",
+      "Bon Kiara": "Land Marker Sdn Bhd",
+      "Skylon": "GBD DEVELOPMENT SDN BHD",
+      "Conlay": "PATSAWAN PROPERTIES SDN BHD",
+      "裝修公司": "XINHAUS ENTERPRISE",
+      "Skyline Embassy": "SKYLINE EMBASSY SDN BHD",
+      "Bangsar Hill Park": "Bangsar Hill Park Developmnt Sdn Bhd",
+      "Oxley KLCC": "Oxley Rising Sdn Bhd",
+      "Armani Hallson": "Armani Hallson KLCC Sdn Bhd",
+      "二家代辦": "SHL INTERNATIONAL(MM2H) SDN.BHD"
+    };
+
+    function numberToWords(num) {
+      const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+      const teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+      const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+      function convertChunk(n) {
+        let str = "";
+        if (n >= 100) {
+          str += ones[Math.floor(n / 100)] + " Hundred ";
+          n %= 100;
+        }
+        if (n >= 20) {
+          str += tens[Math.floor(n / 10)] + " ";
+          n %= 10;
+        } else if (n >= 10) {
+          str += teens[n - 10] + " ";
+          n = 0;
+        }
+        if (n > 0) str += ones[n] + " ";
+        return str.trim();
+      }
+
+      const integerPart = Math.floor(num);
+      const decimalPart = Math.round((num - integerPart) * 100);
+
+      let result = "";
+      if (integerPart >= 1000000) {
+        result += convertChunk(Math.floor(integerPart / 1000000)) + " Million ";
+      }
+      if (integerPart >= 1000) {
+        result += convertChunk(Math.floor((integerPart % 1000000) / 1000)) + " Thousand ";
+      }
+      result += convertChunk(integerPart % 1000);
+
+      if (decimalPart > 0) {
+        result += " and " + convertChunk(decimalPart) + " Cents";
+      }
+
+      return result.trim() + " ONLY";
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      if (isNaN(date)) return "";
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const yy = String(date.getFullYear()).slice(-2);
+      return `${dd}${mm}${yy}`;
+    }
+
+    const projectSelect = document.getElementById("project");
+    const developerAccount = document.getElementById("developerAccount");
+    const amountInput = document.getElementById("amount");
+    const amountWords = document.getElementById("amountWords");
+    const cashDate = document.getElementById("cashDate");
+    const formattedDate = document.getElementById("formattedDate");
+
+    const checkAccountName = document.getElementById("checkAccountName");
+    const checkAmountWords = document.getElementById("checkAmountWords");
+    const checkAmountNumber = document.getElementById("checkAmountNumber");
+    const checkDate = document.getElementById("checkDate");
+
+    projectSelect.addEventListener("change", () => {
+      const project = projectSelect.value;
+      const name = accountMap[project] || "";
+      developerAccount.value = name;
+      checkAccountName.textContent = name;
+    });
+
+    amountInput.addEventListener("input", () => {
+      const value = parseFloat(amountInput.value);
+      if (isNaN(value) || value < 0) {
+        amountWords.value = "";
+        checkAmountWords.textContent = "";
+        checkAmountNumber.textContent = "";
+        return;
+      }
+
+      const words = numberToWords(value);
+      amountWords.value = words;
+      checkAmountNumber.textContent = value.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+      const maxLineLength = 45;
+      let wordsWrapped = "";
+      if (words.length <= maxLineLength) {
+        wordsWrapped = words;
+      } else {
+        const breakpoint = words.lastIndexOf(" ", maxLineLength);
+        wordsWrapped = words.slice(0, breakpoint) + "\n" + words.slice(breakpoint + 1);
+      }
+
+      checkAmountWords.textContent = wordsWrapped;
+    });
+
+    cashDate.addEventListener("input", () => {
+      const formatted = formatDate(cashDate.value);
+      formattedDate.value = formatted;
+      checkDate.textContent = formatted;
+    });
+  </script>
+</body>
+</html>
