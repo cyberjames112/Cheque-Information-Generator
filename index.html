@@ -82,7 +82,10 @@
       color: red;
       white-space: normal;
       line-height: 1.8;
-      word-wrap: break-word;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     .amount-number {
@@ -102,6 +105,35 @@
       letter-spacing: 1.8vw;
       font-weight: bold;
       color: red;
+    }
+
+    /* ✅ 桌機版修正 */
+    @media screen and (min-width: 768px) {
+      .account-name {
+        font-size: 24px;
+        top: 30%;
+        left: 11%;
+      }
+
+      .amount-words {
+        font-size: 20px;
+        top: 42%;
+        left: 12.5%;
+        max-width: 450px;
+      }
+
+      .amount-number {
+        font-size: 36px;
+        top: 38.8%;
+        left: 71%;
+      }
+
+      .date {
+        font-size: 30px;
+        top: 18.2%;
+        left: 73.5%;
+        letter-spacing: 22px;
+      }
     }
   </style>
 </head>
@@ -245,7 +277,25 @@
       const words = numberToWords(value);
       amountWords.value = words;
       checkAmountNumber.textContent = value.toLocaleString(undefined, { minimumFractionDigits: 2 });
-      checkAmountWords.textContent = words;
+
+      const maxLineLength = 45;
+      let wordsWrapped = "";
+
+      if (words.length <= maxLineLength) {
+        wordsWrapped = words;
+      } else {
+        const firstBreak = words.lastIndexOf(" ", maxLineLength);
+        const firstLine = words.slice(0, firstBreak);
+        let secondLine = words.slice(firstBreak + 1);
+        const secondBreak = secondLine.lastIndexOf(" ", maxLineLength);
+        if (secondLine.length > maxLineLength && secondBreak > -1) {
+          secondLine = secondLine.slice(0, secondBreak) + "…";
+        }
+        wordsWrapped = `${firstLine}
+${secondLine}`;
+      }
+
+      checkAmountWords.textContent = wordsWrapped;
     });
 
     cashDate.addEventListener("input", () => {
